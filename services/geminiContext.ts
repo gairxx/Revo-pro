@@ -4,7 +4,10 @@ import { Vehicle } from "../types";
 const API_KEY = process.env.API_KEY || '';
 
 export const generateVehicleContext = async (vehicle: Omit<Vehicle, 'id' | 'contextString'>): Promise<string> => {
-  if (!API_KEY) throw new Error("API Key missing");
+  if (!API_KEY) {
+    // Return a generic error that will be caught by the UI
+    throw new Error("Service Configuration Error: Diagnostic Link Unavailable");
+  }
 
   const ai = new GoogleGenAI({ apiKey: API_KEY });
   
@@ -32,14 +35,10 @@ export const generateVehicleContext = async (vehicle: Omit<Vehicle, 'id' | 'cont
     Output ONLY the raw text of the system instruction. Do not include markdown formatting or "Here is the instruction".
   `;
 
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-    });
-    return response.text || "You are Revo, an expert mechanic.";
-  } catch (error) {
-    console.error("Failed to generate vehicle context:", error);
-    return "You are Revo, an expert mechanic specialized in automotive repair. Please ask for vehicle details.";
-  }
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash',
+    contents: prompt,
+  });
+  
+  return response.text || "You are Revo, an expert mechanic.";
 };

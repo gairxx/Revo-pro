@@ -4,7 +4,10 @@ import { Vehicle, TSB } from "../types";
 const API_KEY = process.env.API_KEY || '';
 
 export const searchTSBs = async (vehicle: Vehicle, query: string): Promise<TSB[]> => {
-  if (!API_KEY) throw new Error("API Key missing");
+  if (!API_KEY) {
+      console.error("TSB Search: Service not configured");
+      return [];
+  }
 
   const ai = new GoogleGenAI({ apiKey: API_KEY });
 

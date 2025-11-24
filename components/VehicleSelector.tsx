@@ -15,14 +15,17 @@ const VehicleSelector: React.FC<VehicleSelectorProps> = ({ onVehicleCreated }) =
     vin: ''
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setError(null); // Clear error on user input
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
     try {
       // 1. Generate the specialist context
@@ -37,9 +40,10 @@ const VehicleSelector: React.FC<VehicleSelectorProps> = ({ onVehicleCreated }) =
       };
 
       onVehicleCreated(newVehicle);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to initialize vehicle technician. Check API Key.");
+    } catch (err: any) {
+      console.error("Initialization error:", err);
+      // Display a professional user-facing error message
+      setError("Diagnostic Server Connection Failed. The Revo database is currently unreachable. Please check your internet connection or try again later.");
     } finally {
       setLoading(false);
     }
@@ -51,6 +55,18 @@ const VehicleSelector: React.FC<VehicleSelectorProps> = ({ onVehicleCreated }) =
         <h2 className="text-3xl font-bold mb-2 text-blue-400">New Diagnostic Session</h2>
         <p className="text-gray-400 mb-8">Enter vehicle details to initialize Revo's technical database.</p>
         
+        {error && (
+            <div className="mb-6 p-4 bg-red-900/20 border border-red-900/50 rounded-lg text-left">
+                <div className="flex items-center gap-2 mb-1">
+                    <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <h3 className="font-bold text-red-400 text-sm">System Unavailable</h3>
+                </div>
+                <p className="text-xs text-red-300/80 leading-relaxed">
+                    {error}
+                </p>
+            </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <input

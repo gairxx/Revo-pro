@@ -178,6 +178,8 @@ const App: React.FC = () => {
     updateHistory(currentVehicle.id, userMsg);
 
     try {
+      if (!API_KEY) throw new Error("Missing API Key");
+
       const ai = new GoogleGenAI({ apiKey: API_KEY });
       
       // Construct history for the model (excluding system/visual logs)
@@ -237,12 +239,13 @@ const App: React.FC = () => {
       };
       updateHistory(currentVehicle.id, modelMsg);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("Text Chat Error:", error);
+      
       const errorMsg: ChatMessage = {
           id: crypto.randomUUID(),
           role: 'system',
-          text: "Error: Could not connect to Revo database. Please try again.",
+          text: "System Alert: Revo database connection failed. Service may be unavailable.",
           timestamp: Date.now()
       };
       updateHistory(currentVehicle.id, errorMsg);

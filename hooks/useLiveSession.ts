@@ -72,7 +72,8 @@ export const useLiveSession = ({ systemInstruction, onTranscript, onToolCall, to
 
   const connect = useCallback(async () => {
     if (!API_KEY) {
-        alert("API Key missing");
+        console.error("API Key missing - cannot start live session");
+        setConnectionState(ConnectionState.ERROR);
         return;
     }
     
